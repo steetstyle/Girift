@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="UE4"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="msvc8"/>
+		<Option virtualFolders="CMake Files\;CMake Files\Intermediate\;CMake Files\Intermediate\ProjectFiles\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 all"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UE4Game">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 UE4Game"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="GiriftEditor-Win64-Shipping">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 GiriftEditor-Win64-Shipping"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Girift-Win64-DebugGame">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 Girift-Win64-DebugGame"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Girift-Win64-Shipping">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 Girift-Win64-Shipping"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UE4Editor-Win64-Shipping">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 UE4Editor-Win64-Shipping"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Girift">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 Girift"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="GiriftEditor-Win64-DebugGame">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 GiriftEditor-Win64-DebugGame"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="GiriftEditor">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 GiriftEditor"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UE4Editor-Win64-DebugGame">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 UE4Editor-Win64-DebugGame"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UE4Editor">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 UE4Editor"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UE4Game-Win64-DebugGame">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 UE4Game-Win64-DebugGame"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="UE4Game-Win64-Shipping">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 UE4Game-Win64-Shipping"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 edit_cache"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="C:/Girift/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Girift\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="C:/Girift/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-config-engine.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-config-project.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-csharp-engine.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-csharp-project.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-definitions.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-headers-project.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-headers-ue4.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-includes.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-shaders-engine.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-shaders-project.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-sources-engine.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+		<Unit filename="C:/Girift/Intermediate/ProjectFiles/cmake-sources-project.cmake">
+			<Option virtualFolder="CMake Files\Intermediate\ProjectFiles\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

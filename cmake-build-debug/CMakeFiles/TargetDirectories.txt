@@ -1,0 +1,14 @@
+C:/Girift/cmake-build-debug/CMakeFiles/UE4Game.dir
+C:/Girift/cmake-build-debug/CMakeFiles/GiriftEditor-Win64-Shipping.dir
+C:/Girift/cmake-build-debug/CMakeFiles/Girift-Win64-DebugGame.dir
+C:/Girift/cmake-build-debug/CMakeFiles/Girift-Win64-Shipping.dir
+C:/Girift/cmake-build-debug/CMakeFiles/UE4Editor-Win64-Shipping.dir
+C:/Girift/cmake-build-debug/CMakeFiles/Girift.dir
+C:/Girift/cmake-build-debug/CMakeFiles/GiriftEditor-Win64-DebugGame.dir
+C:/Girift/cmake-build-debug/CMakeFiles/GiriftEditor.dir
+C:/Girift/cmake-build-debug/CMakeFiles/UE4Editor-Win64-DebugGame.dir
+C:/Girift/cmake-build-debug/CMakeFiles/UE4Editor.dir
+C:/Girift/cmake-build-debug/CMakeFiles/UE4Game-Win64-DebugGame.dir
+C:/Girift/cmake-build-debug/CMakeFiles/UE4Game-Win64-Shipping.dir
+C:/Girift/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Girift/cmake-build-debug/CMakeFiles/rebuild_cache.dir
