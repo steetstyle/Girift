@@ -8,6 +8,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
+#include "Animation/AnimMontage.h"
 #include "Components/PointLightComponent.h"
 #include "CoreWeapon.generated.h"
 
@@ -47,6 +48,9 @@ protected:
     int currentAmmo;
 
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
+    int maxCurrentAmmo;
+
+    UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
     int totalAmmo;
 
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
@@ -54,6 +58,13 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
     bool isReloadingAmmoLeft;
+
+protected:
+    UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
+    bool isLeftClickPressed;
+	
+    UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
+    bool isRightClickPressed;
 
 private:
     USceneComponent* UC_Root;
@@ -103,10 +114,20 @@ public:
 
 
 
-
 public:
     UPROPERTY(EditAnywhere, Category = WeaponAnimation)
     TSubclassOf<UAnimInstance> WeaponAnimClass;
+
+public:
+    UPROPERTY(EditAnywhere, Category = WeaponAnimation)
+    UAnimMontage* AimFireAnimationMontage;
+	
+    UPROPERTY(EditAnywhere, Category = WeaponAnimation)
+    UAnimMontage* NormalFireAnimationMontage;
+
+public:
+    UPROPERTY(EditAnywhere, Category = WeaponSettings)
+    float FireRate;
 
 private:
     class ACoreCharacter* OwnerCharacter;
@@ -128,11 +149,30 @@ public:
     virtual void ToggleFlashlight_Released(void);
 
     virtual void LeftClick_Pressed(void);
+    virtual void LeftClick(void);
     virtual void LeftClick_Released(void);
 
     virtual void RightClick_Pressed(void);
+    virtual void RightClick(void);
     virtual void RightClick_Released(void);
 
 public:
     virtual void Reload(void);
+
+protected:
+    FTimerHandle ShootingTimerHandle;
+    virtual void SetShootingTimerWithDelegate(FTimerHandle& TimerHandle, TBaseDelegate<void> ObjectDelegate, float Time, bool bLoop);
+
+
+protected:
+    virtual bool IsOutOfAmmo(void);
+    virtual bool IsAiming(void);
+
+
+protected:
+    virtual void RemoveAmmo(void);
+    virtual void SpawnBullet(void);
+    virtual void SpawnCasing(void);
+    virtual void Recoil(void);
+
 };

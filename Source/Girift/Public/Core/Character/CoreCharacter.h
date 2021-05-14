@@ -246,4 +246,10 @@ public:
 public:
     virtual void OnToggleMouseCursor(void);
 
+ public:
+     virtual bool IsWeaponCanFire(void);
+     virtual bool IsWeaponShooting(void);
+     virtual bool IsWeaponOutOfAmmo(void);
+     virtual bool IsAiming(void);
+
 };

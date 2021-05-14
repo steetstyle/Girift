@@ -73,7 +73,6 @@ ACoreCharacter::ACoreCharacter()
 
                 SM_Knife = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Knife"));
                 SM_Knife->SetupAttachment(UC_KnifeComponents);
-
             /* UC_KnifeComponents Attachments END */
 
     /* SPRING ARM Attahment END */
@@ -337,4 +336,28 @@ void ACoreCharacter::OnToggleMouseCursor(void)
 
 USkeletalMeshComponent* ACoreCharacter::GetArmsHolderSkeletalMesh() const{
     return SM_ArmsHolder;
+}
+
+bool ACoreCharacter::IsWeaponCanFire()
+{
+    if (isReloading || IsWeaponOutOfAmmo() || isHolstered || isThrowingGrenade || isRunning || isCloseToWall || isInspectingWeapon || isMeleeAttacking)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool ACoreCharacter::IsWeaponShooting(void)
+{
+    return isShooting;
+}
+
+bool ACoreCharacter::IsWeaponOutOfAmmo(void)
+{
+    return isOutOfAmmo;
+}
+
+bool ACoreCharacter::IsAiming(void)
+{
+    return isAiming;
 }

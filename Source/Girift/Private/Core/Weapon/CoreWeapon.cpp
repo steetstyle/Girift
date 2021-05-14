@@ -56,8 +56,11 @@ ACoreWeapon::ACoreWeapon()
     isReloadingOutOfAmmo = false;
     isReloadingAmmoLeft = false;
 
-    totalAmmo = 0;
-    currentAmmo = 0;
+    totalAmmo = 75;
+    currentAmmo = 25;
+    maxCurrentAmmo = 25;
+
+    FireRate = 0.1f;
 
     WeaponFireModeStatus = EWeaponFireModeStatus::None;
 }
@@ -160,12 +163,81 @@ void ACoreWeapon::ToggleFlashlight_Released(void)
 
 void ACoreWeapon::LeftClick_Pressed(void)
 {
+    isLeftClickPressed = true;
+	
+    if (OwnerCharacter)
+    {
+        if (!(OwnerCharacter->IsWeaponCanFire() && !OwnerCharacter->IsWeaponShooting()) && OwnerCharacter->IsWeaponOutOfAmmo())
+        {
+            if(OwnerCharacter->IsAiming())
+            {
+	            // Play out of ammo animation (Aiming State)
+            }
+            else
+            {
+                // Play out of ammo animation (Normal State)
 
+            }
+        }
+
+    	if(!OwnerCharacter->IsWeaponCanFire())
+    	{
+            // Disable Shooting if any other actions are active
+            return;
+    	}
+
+        LeftClick();
+
+    }
 }
+
+void ACoreWeapon::LeftClick(void)
+{
+   if(OwnerCharacter)
+   {
+	   if(isLeftClickPressed && !IsOutOfAmmo())
+	   {
+	   		
+                if (IsAiming())
+                {
+                    if (AimFireAnimationMontage)
+                    {
+                        // Play Aim Animation and Aim Fire
+                        OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(AimFireAnimationMontage);
+                    }
+                }
+                else
+                {
+                    if (NormalFireAnimationMontage)
+                    {
+	                    // Play Normal Fire Animation and Normal Fire
+	                    OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(NormalFireAnimationMontage);
+                    }
+                }
+
+			RemoveAmmo();
+			SpawnBullet();
+			SpawnCasing();
+			Recoil();
+	   	
+			SetShootingTimerWithDelegate(ShootingTimerHandle, FTimerDelegate::CreateUObject(this, &ACoreWeapon::LeftClick), FireRate, false);
+
+	   }
+   }
+}
+
 
 void ACoreWeapon::LeftClick_Released(void)
 {
+    isLeftClickPressed = false;
 
+    if (OwnerCharacter)
+    {
+        if (OwnerCharacter->IsWeaponCanFire())
+        {
+
+        }
+    }
 }
 
 void ACoreWeapon::RightClick_Pressed(void)
@@ -173,6 +245,11 @@ void ACoreWeapon::RightClick_Pressed(void)
     if(OwnerCharacter){
         OwnerCharacter->SetIsAiming(true);
     }
+}
+
+void ACoreWeapon::RightClick(void)
+{
+
 }
 
 void ACoreWeapon::RightClick_Released(void)
@@ -184,8 +261,51 @@ void ACoreWeapon::RightClick_Released(void)
 
 void ACoreWeapon::Reload(void)
 {
-
+    currentAmmo = maxCurrentAmmo;
 }
 
 
+void ACoreWeapon::SetShootingTimerWithDelegate(FTimerHandle& TimerHandle, TBaseDelegate<void> ObjectDelegate, float Time, bool bLoop)
+{
+    GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle, ObjectDelegate, Time, bLoop);
+}
 
+
+bool ACoreWeapon::IsOutOfAmmo(void)
+{
+    return currentAmmo < 1;
+}
+
+bool ACoreWeapon::IsAiming(void)
+{
+    if(OwnerCharacter)
+    {
+        return OwnerCharacter->IsAiming();
+    }
+    return false;
+}
+
+
+void ACoreWeapon::RemoveAmmo(void)
+{
+    if(currentAmmo > 0 )
+    {
+        currentAmmo = currentAmmo - 1;
+    }
+}
+
+void ACoreWeapon::SpawnBullet(void)
+{
+	
+}
+
+void ACoreWeapon::SpawnCasing(void)
+{
+	
+}
+
+void ACoreWeapon::Recoil(void)
+{
+	
+}
