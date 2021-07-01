@@ -22,11 +22,8 @@ public:
 
 public:
 
-    UPROPERTY(EditAnywhere, Category = ArrowComponent)
-    UArrowComponent* SpawnPoint_Casing;
-
 
     UPROPERTY(EditAnywhere, Category = ArrowComponent)
-    UArrowComponent* SpawnPoint_MuzzleFlashSilencerPosition;
+    UArrowComponent* SpawnPoint_SilencerMuzzleFlashPosition;
 	
 };

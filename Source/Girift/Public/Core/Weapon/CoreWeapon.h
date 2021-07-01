@@ -9,6 +9,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Animation/AnimMontage.h"
+#include "Sound/SoundBase.h"
 #include "Components/PointLightComponent.h"
 #include "CoreWeapon.generated.h"
 
@@ -59,6 +60,13 @@ protected:
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
     bool isReloadingAmmoLeft;
 
+    UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
+    int bulletsFired;
+
+    UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
+    int bulletsFiredSmoke;
+
+
 protected:
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
     bool isLeftClickPressed;
@@ -89,7 +97,7 @@ public:
     UPointLightComponent* PointLight_MuzzleFlashLight;
 
     UPROPERTY(EditAnywhere, Category = ArrowComponent)
-    UArrowComponent* SpawnPoint_MuzzleFlashPosition;
+    UArrowComponent* SpawnPoint_NormalMuzzleFlashPosition;
 
     UPROPERTY(EditAnywhere, Category = SceneComponent)
     USceneComponent* UC_MagazineComponents;
@@ -112,6 +120,29 @@ public:
     UPROPERTY(EditAnywhere, Category = StaticMesh)
     UStaticMeshComponent* SM_Slider;
 
+    UPROPERTY(EditAnywhere, Category = ArrowComponent)
+    UArrowComponent* SpawnPoint_Casing;
+
+
+public:
+    UPROPERTY(EditAnywhere, Category = WeaponSound)
+    USoundBase* AimShoutOutOfAmmoSound;
+
+    UPROPERTY(EditAnywhere, Category = WeaponSound)
+    USoundBase* NormalShoutOutOfAmmoSound;
+
+    UPROPERTY(EditAnywhere, Category = WeaponSound)
+    USoundBase* NormalFireSound;
+
+    UPROPERTY(EditAnywhere, Category = WeaponSound)
+    USoundBase* SilencerFireSound;
+
+    UPROPERTY(EditAnywhere, Category = WeaponSound)
+    USoundBase* BulletImpactSound;
+
+public:
+    UPROPERTY(EditAnywhere, Category = WeaponParticle)
+    UParticleSystem* PS_MuzzleEmitter;
 
 
 public:
@@ -124,6 +155,18 @@ public:
 	
     UPROPERTY(EditAnywhere, Category = WeaponAnimation)
     UAnimMontage* NormalFireAnimationMontage;
+
+    UPROPERTY(EditAnywhere, Category = WeaponAnimation)
+    UAnimMontage* AimShoutOutOfAmmoAnimationMontage;
+
+    UPROPERTY(EditAnywhere, Category = WeaponAnimation)
+    UAnimMontage* NormalShoutOutOfAmmoAnimationMontage;
+
+    UPROPERTY(EditAnywhere, Category = WeaponAnimation)
+    UAnimMontage* ReloadOutOfAmmoAnimationMontage;
+
+    UPROPERTY(EditAnywhere, Category = WeaponAnimation)
+    UAnimMontage* ReloadAmmoLeftAnimationMontage;
 
 public:
     UPROPERTY(EditAnywhere, Category = WeaponSettings)
@@ -161,13 +204,21 @@ public:
 
 protected:
     FTimerHandle ShootingTimerHandle;
-    virtual void SetShootingTimerWithDelegate(FTimerHandle& TimerHandle, TBaseDelegate<void> ObjectDelegate, float Time, bool bLoop);
+    FTimerHandle ReloadingTimerHandle;
+    virtual void StopSimulateReloadDelegate(void);
+
+    virtual void SetTimerWithDelegate(FTimerHandle& TimerHandle, TBaseDelegate<void> ObjectDelegate, float Time, bool bLoop);
 
 
-protected:
+public:
     virtual bool IsOutOfAmmo(void);
     virtual bool IsAiming(void);
+    virtual bool IsReloading(void);
 
+public:
+    virtual USoundBase* GetFireSound(void);
+    virtual UArrowComponent* GetMuzzleFlashPosition(void);
+	virtual UArrowComponent* GetBulletSpawnComponent(void);
 
 protected:
     virtual void RemoveAmmo(void);

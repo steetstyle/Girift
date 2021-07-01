@@ -16,7 +16,7 @@
 #include "Core/Weapon/CoreWeapon.h"
 #include "Core/Character/Components/WeaponManagerComponent.h"
 #include "Core/Character/Components/CrosshairManagerComponent.h"
-
+#include "Core/Weapon/CoreWeapon.h"
 #include "CoreCharacter.generated.h"
 
 
@@ -236,8 +236,9 @@ protected:
     virtual void ToggleFlashlight_Pressed(void);
     virtual void ToggleFlashlight_Released(void);
 
-protected:
-    virtual void Reload(void);
+public:
+    virtual void Reload_Begin(class ACoreWeapon* Weapon);
+    virtual void Reload_End(void);
     virtual void SetAmmo(void);
     virtual void BulletSpread(void);
 public:
@@ -251,5 +252,6 @@ public:
      virtual bool IsWeaponShooting(void);
      virtual bool IsWeaponOutOfAmmo(void);
      virtual bool IsAiming(void);
+     virtual bool IsReloading(void);
 
 };

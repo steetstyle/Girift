@@ -15,14 +15,12 @@ ACoreAutomaticWeapon::ACoreAutomaticWeapon() : ACoreWeapon() {
     FVector Location_SpawnPoint_MuzzleFlashPosition = FVector(-27.0f, 110.f, 109.f);
     FRotator Rotator_SpawnPoint_MuzzleFlashPosition = FRotator(0.3f, 0.4f, 90.0f);
 
-    SpawnPoint_MuzzleFlashPosition->SetRelativeLocation(Location_SpawnPoint_MuzzleFlashPosition);
-    SpawnPoint_MuzzleFlashPosition->SetRelativeRotation(Rotator_SpawnPoint_MuzzleFlashPosition);
+    SpawnPoint_NormalMuzzleFlashPosition->SetRelativeLocation(Location_SpawnPoint_MuzzleFlashPosition);
+    SpawnPoint_NormalMuzzleFlashPosition->SetRelativeRotation(Rotator_SpawnPoint_MuzzleFlashPosition);
 
-    SpawnPoint_Casing = CreateDefaultSubobject<UArrowComponent>(TEXT("SpawnPoint_Casing"));
-    SpawnPoint_Casing->SetupAttachment(UC_WeaponComponents);
 
-    SpawnPoint_MuzzleFlashSilencerPosition = CreateDefaultSubobject<UArrowComponent>(TEXT("SpawnPoint_MuzzleFlashSilencerPosition"));
-    SpawnPoint_MuzzleFlashSilencerPosition->SetupAttachment(UC_WeaponComponents);
+    SpawnPoint_SilencerMuzzleFlashPosition = CreateDefaultSubobject<UArrowComponent>(TEXT("SpawnPoint_MuzzleFlashSilencerPosition"));
+    SpawnPoint_SilencerMuzzleFlashPosition->SetupAttachment(UC_WeaponComponents);
 
     FVector Scale_BC_WeaponCollider = FVector(24.0f, 3.0f, 5.0f);
 

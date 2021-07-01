@@ -3,6 +3,8 @@
 
 #include "Core/Weapon/CoreWeapon.h"
 #include "Core/Character/CoreCharacter.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 ACoreWeapon::ACoreWeapon()
@@ -33,8 +35,12 @@ ACoreWeapon::ACoreWeapon()
     PointLight_MuzzleFlashLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight_MuzzleFlashLight"));
     PointLight_MuzzleFlashLight->SetupAttachment(UC_WeaponComponents);
 
-    SpawnPoint_MuzzleFlashPosition = CreateDefaultSubobject<UArrowComponent>(TEXT("SpawnPoint_MuzzleFlashPosition"));
-    SpawnPoint_MuzzleFlashPosition->SetupAttachment(UC_WeaponComponents);
+    SpawnPoint_NormalMuzzleFlashPosition = CreateDefaultSubobject<UArrowComponent>(TEXT("SpawnPoint_MuzzleFlashPosition"));
+    SpawnPoint_NormalMuzzleFlashPosition->SetupAttachment(UC_WeaponComponents);
+
+
+    SpawnPoint_Casing = CreateDefaultSubobject<UArrowComponent>(TEXT("SpawnPoint_Casing"));
+    SpawnPoint_Casing->SetupAttachment(UC_WeaponComponents);
 
     UC_MagazineComponents = CreateDefaultSubobject<USceneComponent>(TEXT("UC_MagazineComponents"));
     UC_MagazineComponents->SetupAttachment(GetRootComponent(), PSN_Magazine);
@@ -52,6 +58,8 @@ ACoreWeapon::ACoreWeapon()
     SM_Slider->SetupAttachment(UC_SliderComponents);
 
 
+
+
     isOutOfAmmo = false;
     isReloadingOutOfAmmo = false;
     isReloadingAmmoLeft = false;
@@ -59,6 +67,9 @@ ACoreWeapon::ACoreWeapon()
     totalAmmo = 75;
     currentAmmo = 25;
     maxCurrentAmmo = 25;
+	
+    bulletsFired = 0;
+    bulletsFiredSmoke = 15;
 
     FireRate = 0.1f;
 
@@ -113,7 +124,7 @@ void ACoreWeapon::DeinitializeWeapon()
 
 void ACoreWeapon::Reload_Pressed(void)
 {
-
+    Reload();
 }
 
 void ACoreWeapon::Reload_Released(void)
@@ -167,16 +178,35 @@ void ACoreWeapon::LeftClick_Pressed(void)
 	
     if (OwnerCharacter)
     {
-        if (!(OwnerCharacter->IsWeaponCanFire() && !OwnerCharacter->IsWeaponShooting()) && OwnerCharacter->IsWeaponOutOfAmmo())
+        if (!(OwnerCharacter->IsWeaponCanFire() && !OwnerCharacter->IsWeaponShooting()) || IsOutOfAmmo())
         {
-            if(OwnerCharacter->IsAiming())
+            if (IsAiming())
             {
-	            // Play out of ammo animation (Aiming State)
+                if (AimShoutOutOfAmmoAnimationMontage)
+                {
+                    // Play Aim Shoot Out Of Ammo Animation 
+                    OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(AimShoutOutOfAmmoAnimationMontage);
+
+                    if (AimShoutOutOfAmmoSound)
+                    {
+                        // Play Aim Shoot Out Of Ammo sound  (Aim State)
+                        UGameplayStatics::PlaySoundAtLocation(GetWorld(), AimShoutOutOfAmmoSound, GetActorLocation(), GetActorRotation());
+                    }
+                }
             }
             else
             {
-                // Play out of ammo animation (Normal State)
+                if (NormalShoutOutOfAmmoAnimationMontage)
+                {
+                    // Play Normal Shoot Out Of Ammo Animation
+                    OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(NormalShoutOutOfAmmoAnimationMontage);
 
+                    if (NormalShoutOutOfAmmoSound)
+                    {
+                        // Play Normal Shoot Out Of Ammo sound (Normal State)
+                        UGameplayStatics::PlaySoundAtLocation(GetWorld(), NormalShoutOutOfAmmoSound, GetActorLocation(), GetActorRotation());
+                    }
+                }
             }
         }
 
@@ -195,6 +225,9 @@ void ACoreWeapon::LeftClick(void)
 {
    if(OwnerCharacter)
    {
+   		
+       USoundBase* FireSound = GetFireSound();
+   	
 	   if(isLeftClickPressed && !IsOutOfAmmo())
 	   {
 	   		
@@ -204,6 +237,11 @@ void ACoreWeapon::LeftClick(void)
                     {
                         // Play Aim Animation and Aim Fire
                         OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(AimFireAnimationMontage);
+                        if (FireSound)
+                        {
+                            // Play shoot sound  (Aim State)
+                            UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, GetActorLocation(), GetActorRotation());
+                        }
                     }
                 }
                 else
@@ -212,6 +250,11 @@ void ACoreWeapon::LeftClick(void)
                     {
 	                    // Play Normal Fire Animation and Normal Fire
 	                    OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(NormalFireAnimationMontage);
+                        if (FireSound)
+                        {
+                            // Play shoot sound (Normal State)
+                            UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, GetActorLocation(), GetActorRotation());
+                        }
                     }
                 }
 
@@ -220,7 +263,22 @@ void ACoreWeapon::LeftClick(void)
 			SpawnCasing();
 			Recoil();
 	   	
-			SetShootingTimerWithDelegate(ShootingTimerHandle, FTimerDelegate::CreateUObject(this, &ACoreWeapon::LeftClick), FireRate, false);
+			if(WeaponFireModeStatus == EWeaponFireModeStatus::FullAutomatic)
+			{
+                SetTimerWithDelegate(ShootingTimerHandle, FTimerDelegate::CreateUObject(this, &ACoreWeapon::LeftClick), FireRate, false);
+			}
+            else if(WeaponFireModeStatus == EWeaponFireModeStatus::SemiAutomatic)
+            {
+	            
+            }
+            else if (WeaponFireModeStatus == EWeaponFireModeStatus::Single)
+            {
+
+            }
+            else if (WeaponFireModeStatus == EWeaponFireModeStatus::None)
+            {
+
+            }
 
 	   }
    }
@@ -238,6 +296,8 @@ void ACoreWeapon::LeftClick_Released(void)
 
         }
     }
+
+    GetWorld()->GetTimerManager().ClearTimer(ShootingTimerHandle);
 }
 
 void ACoreWeapon::RightClick_Pressed(void)
@@ -261,14 +321,60 @@ void ACoreWeapon::RightClick_Released(void)
 
 void ACoreWeapon::Reload(void)
 {
-    currentAmmo = maxCurrentAmmo;
+	if(OwnerCharacter)
+	{
+        float AnimationDuration = 0.0f;
+        if (IsOutOfAmmo())
+        {
+            if (ReloadOutOfAmmoAnimationMontage)
+            {
+            	// Play Reload out of ammo Animation  
+                AnimationDuration = OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(ReloadOutOfAmmoAnimationMontage);
+                OwnerCharacter->Reload_Begin(this);
+            }
+        }
+        else
+        {
+            if (ReloadAmmoLeftAnimationMontage)
+            {
+                // Play Reload ammo left Animation  
+                AnimationDuration = OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(ReloadAmmoLeftAnimationMontage);
+                OwnerCharacter->Reload_Begin(this);
+            }
+        }
+
+        if(AnimationDuration > 0.0f)
+        {
+            SetTimerWithDelegate(ReloadingTimerHandle, FTimerDelegate::CreateUObject(this, &ACoreWeapon::StopSimulateReloadDelegate) , AnimationDuration, false);
+        }
+
+	}
 }
 
 
-void ACoreWeapon::SetShootingTimerWithDelegate(FTimerHandle& TimerHandle, TBaseDelegate<void> ObjectDelegate, float Time, bool bLoop)
+void ACoreWeapon::SetTimerWithDelegate(FTimerHandle& TimerHandle, TBaseDelegate<void> ObjectDelegate, float Time, bool bLoop)
 {
     GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, ObjectDelegate, Time, bLoop);
+}
+
+void ACoreWeapon::StopSimulateReloadDelegate(void)
+{
+	if(OwnerCharacter)
+	{
+        OwnerCharacter->Reload_End();
+        currentAmmo = maxCurrentAmmo;
+	}
+}
+
+
+bool ACoreWeapon::IsReloading()
+{
+    if (OwnerCharacter)
+    {
+        return OwnerCharacter->IsReloading();
+    }
+    return false;
 }
 
 
@@ -289,7 +395,7 @@ bool ACoreWeapon::IsAiming(void)
 
 void ACoreWeapon::RemoveAmmo(void)
 {
-    if(currentAmmo > 0 )
+    if(currentAmmo > 0)
     {
         currentAmmo = currentAmmo - 1;
     }
@@ -297,6 +403,49 @@ void ACoreWeapon::RemoveAmmo(void)
 
 void ACoreWeapon::SpawnBullet(void)
 {
+
+	if(OwnerCharacter)
+	{
+		// Play shoot sound effect
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), GetFireSound(), GetActorLocation(), GetActorRotation());
+        bulletsFired++;
+
+		if(bulletsFired == bulletsFiredSmoke)
+		{
+           if(PS_MuzzleEmitter)
+           {
+               UArrowComponent* MuzzleFlashPosition = GetMuzzleFlashPosition();
+               if (MuzzleFlashPosition)
+               {
+                   UGameplayStatics::SpawnEmitterAttached(PS_MuzzleEmitter, MuzzleFlashPosition);
+               }
+           }
+		}
+
+        UArrowComponent* BulletSpawnArrow = GetBulletSpawnComponent();
+		// LineTrace
+        if(BulletSpawnArrow)
+        {
+            FHitResult HitResult;
+        	
+            FVector Start = BulletSpawnArrow->GetComponentLocation();
+            FVector End = Start + BulletSpawnArrow->GetForwardVector() * 20000;
+        	
+            TArray<AActor*> ActorToIgnore;
+            ActorToIgnore.Add(this);
+
+        	// line trace if  hit something
+            if(UKismetSystemLibrary::LineTraceSingle(GetWorld(), Start, End, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::Persistent, HitResult, true))
+            {
+	            // play bullet impact sound
+            	if(BulletImpactSound)
+            	{
+                    UGameplayStatics::PlaySoundAtLocation(GetWorld(), BulletImpactSound, HitResult.ImpactPoint);
+            	}
+            }
+        }
+
+	}
 	
 }
 
@@ -308,4 +457,20 @@ void ACoreWeapon::SpawnCasing(void)
 void ACoreWeapon::Recoil(void)
 {
 	
+}
+
+
+USoundBase* ACoreWeapon::GetFireSound(void)  
+{
+    return NormalFireSound;
+}
+
+UArrowComponent* ACoreWeapon::GetMuzzleFlashPosition(void)
+{
+    return SpawnPoint_NormalMuzzleFlashPosition;
+}
+
+UArrowComponent* ACoreWeapon::GetBulletSpawnComponent(void) 
+{
+    return SpawnPoint_Casing;
 }

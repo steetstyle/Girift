@@ -237,7 +237,6 @@ void ACoreCharacter::Reload_Pressed(void){
             isThrowingGrenade ||
             isMeleeAttacking ||
             isCloseToWall)){
-                Reload();
             }
 }
 
@@ -277,25 +276,37 @@ void ACoreCharacter::ToggleFlashlight_Released(void){
 
 }
 
-void ACoreCharacter::Reload(void){
-    if(isOutOfAmmo){
-        if(!isReloading){
-            isReloadingOutOfAmmo = true;
-            isReloading = true;
-            currentAmmo = totalAmmo;
+void ACoreCharacter::Reload_Begin(ACoreWeapon* Weapon){
+    if(Weapon)
+    {
+        if (Weapon->IsOutOfAmmo()) {
+            if (!Weapon->IsReloading()) {
+                isReloadingAmmoLeft = false;
+                isReloadingOutOfAmmo = true;
+                isReloading = true;
+                //currentAmmo = totalAmmo;
 
-            //TODO: Play Sound Out Of Ammo
+                //TODO: Play Sound Out Of Ammo
+            }
+        }
+        else {
+            if (!Weapon->IsReloading()) {
+                isReloadingAmmoLeft = true;
+                isReloadingOutOfAmmo = false;
+                isReloading = true;
+                //currentAmmo = totalAmmo;
+
+                //TODO: Play Sound Ammo Left
+            }
         }
     }
-    else{
-        if(!isReloading){
-            isReloadingAmmoLeft = true;
-            isReloading = true;
-            currentAmmo = totalAmmo;
+}
 
-            //TODO: Play Sound Ammo Left
-        }
-    }
+void ACoreCharacter::Reload_End(void)
+{
+    isReloadingAmmoLeft = false;
+    isReloadingOutOfAmmo = false;
+    isReloading = false;
 }
 
 void ACoreCharacter::SetIsAiming(bool status){
@@ -360,4 +371,9 @@ bool ACoreCharacter::IsWeaponOutOfAmmo(void)
 bool ACoreCharacter::IsAiming(void)
 {
     return isAiming;
+}
+
+bool ACoreCharacter::IsReloading(void)
+{
+    return isReloading;
 }
