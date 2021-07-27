@@ -22,6 +22,14 @@ enum class EWeaponFireModeStatus : uint8
     FullAutomatic   UMETA(DisplayName = "Full Automatic"),
 };
 
+UENUM()
+enum class EWeaponFireCasingMode : uint8
+{
+    None     UMETA(DisplayName = "None"),
+    Big    UMETA(DisplayName = "Big"),
+    Small      UMETA(DisplayName = "Small"),
+};
+
 UCLASS()
 class ACoreWeapon : public AActor
 {
@@ -69,6 +77,7 @@ protected:
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
     bool bProjectileMode;
 
+
 protected:
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
     bool isLeftClickPressed;
@@ -79,10 +88,39 @@ protected:
 private:
     USceneComponent* UC_Root;
 
+
+public:
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float MinRecoilIntensity;
+	
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float MaxRecoilIntensity;
+	
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float MinRecoilLocationX;
+	
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float MaxRecoilLocationX;
+
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float RecoilMultiplierAim;
+	
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float RecoilMultiplierNormal;
+
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponProperties)
     EWeaponFireModeStatus WeaponFireModeStatus;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponProperties)
+    EWeaponFireCasingMode WeaponFireCasingMode;
+
+    UPROPERTY(EditAnywhere, Category = SceneComponent)
+    TSubclassOf<AActor> WeaponFireSmallCasingClass;
+
+    UPROPERTY(EditAnywhere, Category = SceneComponent)
+    TSubclassOf<AActor> WeaponFireBigCasingClass;
+	
     UPROPERTY(EditAnywhere, Category = SceneComponent)
     USceneComponent* UC_WeaponComponents;
 
@@ -211,6 +249,9 @@ protected:
 
     virtual void SetTimerWithDelegate(FTimerHandle& TimerHandle, TBaseDelegate<void> ObjectDelegate, float Time, bool bLoop);
 
+private:
+    FRotator ProjectileLookAtRotation;
+    bool bHittedSomething;
 
 public:
     virtual bool IsOutOfAmmo(void);

@@ -58,8 +58,9 @@ ACoreWeapon::ACoreWeapon()
     SM_Slider = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Slider"));
     SM_Slider->SetupAttachment(UC_SliderComponents);
 
+    bHittedSomething = false;
 
-    bProjectileMode = false;
+    WeaponFireCasingMode = EWeaponFireCasingMode::None;
 
     isOutOfAmmo = false;
     isReloadingOutOfAmmo = false;
@@ -75,6 +76,15 @@ ACoreWeapon::ACoreWeapon()
     FireRate = 0.1f;
 
     WeaponFireModeStatus = EWeaponFireModeStatus::None;
+
+    MinRecoilIntensity = 10.0f;
+    MaxRecoilIntensity = 20.0f;
+    MinRecoilLocationX = 0.0f;
+    MaxRecoilLocationX = 25.0f;
+    RecoilMultiplierAim = 0.75f;
+    RecoilMultiplierNormal = 1.0f;
+
+
 }
 
 // Called when the game starts or when spawned
@@ -281,6 +291,8 @@ void ACoreWeapon::LeftClick(void)
 
             }
 
+            bHittedSomething = false;
+
 	   }
    }
 }
@@ -426,46 +438,42 @@ void ACoreWeapon::SpawnBullet(void)
 			
 		
 
-        UArrowComponent* BulletSpawnArrow = GetBulletSpawnComponent();
-        if(BulletSpawnArrow)
-        {
-
-            FVector CharacterCameraLocationStart = OwnerCharacter->SpawnPoint_Bullet->GetComponentLocation();
-            FVector CharacterCameraLocationEnd = CharacterCameraLocationStart + OwnerCharacter->SpawnPoint_Bullet->GetForwardVector() * 20000;
-
-
-            FHitResult HitResult;
-        	
-            
-            //FVector End = CharacterCameraLocationEnd;
-
-
-        	
-            TArray<AActor*> ActorToIgnore;
-            ActorToIgnore.Add(this);
-
-        	// line trace if  hit something
-            if(UKismetSystemLibrary::LineTraceSingle(GetWorld(), CharacterCameraLocationStart, CharacterCameraLocationEnd, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::ForOneFrame, HitResult, true))
+       
+            UArrowComponent* BulletSpawnArrow = GetBulletSpawnComponent();
+            if (BulletSpawnArrow)
             {
-                FVector Start = BulletSpawnArrow->GetComponentLocation();
-                FVector End = HitResult.ImpactPoint;
-                FRotator ProjectileLookAtRotation = UKismetMathLibrary::FindLookAtRotation(Start, HitResult.ImpactPoint);
+
+                FVector CharacterCameraLocationStart = OwnerCharacter->SpawnPoint_Bullet->GetComponentLocation();
+                FVector CharacterCameraLocationEnd = CharacterCameraLocationStart + OwnerCharacter->SpawnPoint_Bullet->GetForwardVector() * 20000;
 
 
-	            // play bullet impact sound if not  projectiled mode
-            	if(BulletImpactSound && !bProjectileMode)
-            	{
-                    UGameplayStatics::PlaySoundAtLocation(GetWorld(), BulletImpactSound, HitResult.ImpactPoint);
-            	}
-            	
+                FHitResult HitResult;
 
-                if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), Start, End, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::Persistent, HitResult, true))
+                TArray<AActor*> ActorToIgnore;
+                ActorToIgnore.Add(this);
+
+                // line trace if  hit something
+                if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), CharacterCameraLocationStart, CharacterCameraLocationEnd, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::ForOneFrame, HitResult, true))
                 {
-                	
+                    FVector Start = SpawnPoint_Casing->GetComponentLocation();
+                    FVector End = HitResult.ImpactPoint;
+                    ProjectileLookAtRotation = UKismetMathLibrary::FindLookAtRotation(Start, HitResult.ImpactPoint);
+
+
+                    // play bullet impact sound if not  projectiled mode
+                    if (BulletImpactSound &&  WeaponFireCasingMode == EWeaponFireCasingMode::None)
+                    {
+                        UGameplayStatics::PlaySoundAtLocation(GetWorld(), BulletImpactSound, HitResult.ImpactPoint);
+                    }
+
+
+                    if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), Start, End, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::Persistent, HitResult, true))
+                    {
+
+                    }
+
                 }
-            	
             }
-        }
 
 	}
 	
@@ -473,12 +481,50 @@ void ACoreWeapon::SpawnBullet(void)
 
 void ACoreWeapon::SpawnCasing(void)
 {
-	
+    if (WeaponFireCasingMode != EWeaponFireCasingMode::None)
+    {
+        FVector WeaponLocation = SpawnPoint_Casing->GetComponentLocation();
+    	
+        AActor* InstantlySpawnedProjectile;
+
+    	if(WeaponFireCasingMode == EWeaponFireCasingMode::Big && WeaponFireBigCasingClass){
+
+            InstantlySpawnedProjectile =  GetWorld()->SpawnActor(WeaponFireBigCasingClass, &WeaponLocation, &ProjectileLookAtRotation);
+    	}
+        else if(WeaponFireCasingMode == EWeaponFireCasingMode::Small && WeaponFireSmallCasingClass){
+        	
+            InstantlySpawnedProjectile =  GetWorld()->SpawnActor(WeaponFireSmallCasingClass, &WeaponLocation, &ProjectileLookAtRotation);
+
+        }
+    }
 }
 
 void ACoreWeapon::Recoil(void)
 {
-	
+
+	if(OwnerCharacter)
+	{
+
+        FVector SpringArmLocation = OwnerCharacter->SpringArm_Main->GetRelativeLocation();
+
+        float clampedX = UKismetMathLibrary::Clamp(SpringArmLocation.X, MinRecoilLocationX, MaxRecoilLocationX);
+
+        float randomIntensity = UKismetMathLibrary::RandomFloatInRange(MinRecoilIntensity, MaxRecoilIntensity);
+		
+        if (IsAiming())
+        {
+            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(clampedX, randomIntensity * RecoilMultiplierAim,1.0f,0.0f);
+            FVector NewRelativeLocation = FVector(interpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
+            OwnerCharacter->SpringArm_Main->SetRelativeLocation(NewRelativeLocation);
+        }
+        else
+        {
+            float newClampedIntesity = clampedX + randomIntensity;
+            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(newClampedIntesity, randomIntensity * RecoilMultiplierNormal, 1.0f, 0.0f);
+            FVector NewRelativeLocation = FVector(interpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
+            OwnerCharacter->SpringArm_Main->SetRelativeLocation(NewRelativeLocation);
+        }
+	}
 }
 
 
