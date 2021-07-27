@@ -52,6 +52,9 @@ protected:
     bool bRestartOrder;
 
 public:
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ObjClass"))
+    virtual ACoreWeapon* GetCurrentWeapon();
+public:
     virtual void ChangeWeapon_Next(void);
     virtual void ChangeWeapon_Previous(void);
     virtual void ChangeWeaponWith(ACoreWeapon* Weapon);

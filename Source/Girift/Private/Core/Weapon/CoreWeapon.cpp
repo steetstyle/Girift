@@ -4,6 +4,7 @@
 #include "Core/Weapon/CoreWeapon.h"
 #include "Core/Character/CoreCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -58,7 +59,7 @@ ACoreWeapon::ACoreWeapon()
     SM_Slider->SetupAttachment(UC_SliderComponents);
 
 
-
+    bProjectileMode = false;
 
     isOutOfAmmo = false;
     isReloadingOutOfAmmo = false;
@@ -422,26 +423,47 @@ void ACoreWeapon::SpawnBullet(void)
            }
 		}
 
+			
+		
+
         UArrowComponent* BulletSpawnArrow = GetBulletSpawnComponent();
-		// LineTrace
         if(BulletSpawnArrow)
         {
+
+            FVector CharacterCameraLocationStart = OwnerCharacter->SpawnPoint_Bullet->GetComponentLocation();
+            FVector CharacterCameraLocationEnd = CharacterCameraLocationStart + OwnerCharacter->SpawnPoint_Bullet->GetForwardVector() * 20000;
+
+
             FHitResult HitResult;
         	
-            FVector Start = BulletSpawnArrow->GetComponentLocation();
-            FVector End = Start + BulletSpawnArrow->GetForwardVector() * 20000;
+            
+            //FVector End = CharacterCameraLocationEnd;
+
+
         	
             TArray<AActor*> ActorToIgnore;
             ActorToIgnore.Add(this);
 
         	// line trace if  hit something
-            if(UKismetSystemLibrary::LineTraceSingle(GetWorld(), Start, End, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::Persistent, HitResult, true))
+            if(UKismetSystemLibrary::LineTraceSingle(GetWorld(), CharacterCameraLocationStart, CharacterCameraLocationEnd, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::ForOneFrame, HitResult, true))
             {
-	            // play bullet impact sound
-            	if(BulletImpactSound)
+                FVector Start = BulletSpawnArrow->GetComponentLocation();
+                FVector End = HitResult.ImpactPoint;
+                FRotator ProjectileLookAtRotation = UKismetMathLibrary::FindLookAtRotation(Start, HitResult.ImpactPoint);
+
+
+	            // play bullet impact sound if not  projectiled mode
+            	if(BulletImpactSound && !bProjectileMode)
             	{
                     UGameplayStatics::PlaySoundAtLocation(GetWorld(), BulletImpactSound, HitResult.ImpactPoint);
             	}
+            	
+
+                if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), Start, End, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::Persistent, HitResult, true))
+                {
+                	
+                }
+            	
             }
         }
 

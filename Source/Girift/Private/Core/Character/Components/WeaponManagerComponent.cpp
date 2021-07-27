@@ -119,6 +119,11 @@ void UWeaponManagerComponent::InitializeWeapons(void)
    }
 }
 
+ACoreWeapon* UWeaponManagerComponent::GetCurrentWeapon(void)
+{
+    return CurrentWeapon;
+}
+
 
 void UWeaponManagerComponent::ChangeWeapon_Next(void){
     UE_LOG(LogTemp, Warning, TEXT("ChangeWeapon_Next Called"));
@@ -212,6 +217,7 @@ void UWeaponManagerComponent::ChangeWeaponWith(ACoreWeapon* Weapon){
 }
 
 void UWeaponManagerComponent::DropCurrentWeapon(void){
+    CurrentWeapon->DeinitializeWeapon();
     AvailableWeapons[CurrentWeaponIndex] = nullptr;
     CurrentWeapon = nullptr;
 }

@@ -43,59 +43,75 @@ public:
 	virtual void SetupManagerComponents();
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Manager)
+
+    // FPS Variables
+    // FPS Variables
+    // FPS Variables
+    // FPS Variables
+    // FPS Variables
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Manager)
     UWeaponManagerComponent*  Component_WeaponManager;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Manager)
     UCrosshairManagerComponent*  Component_CrosshairManager;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = SkeletalMesh)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_SkeletalMesh)
     USkeletalMeshComponent* SM_ArmsHolder;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = SpringArm)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_SpringArm)
     USpringArmComponent* SpringArm_Main;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = ParentSocket)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_ParentSocket)
     FName PSN_SpringArm_Main;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = CameraComponent)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_CameraComponent)
     UCameraComponent* Camera_SpringArm;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = ParentSocket)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_ParentSocket)
     FName PSN_Camera_SpringArm;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = ArrowComponent)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_ArrowComponent)
     UArrowComponent* SpawnPoint_Grenade;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = ArrowComponent)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_ArrowComponent)
     UArrowComponent* SpawnPoint_Bullet;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = SceneComponent)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_SceneComponent)
     USceneComponent* UC_FPSViewComponents;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = SpringArm)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_SpringArm)
     USpringArmComponent* SpringArm_Helmet;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = StaticMesh)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_StaticMesh)
     UStaticMeshComponent* SM_Helmet;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = SpringArm)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_SpringArm)
     USpringArmComponent* SpringArm_Headset;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = StaticMesh)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_StaticMesh)
     UStaticMeshComponent* SM_Headset;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = StaticMesh)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_StaticMesh)
     UStaticMeshComponent* SM_Googles;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = SceneComponent)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_SceneComponent)
     USceneComponent* UC_KnifeComponents;
 
-    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = ParentSocket)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = FPS_ParentSocket)
     FName PSN_Knife;
 
-    UPROPERTY(EditAnywhere, Category = StaticMesh)
+    UPROPERTY(EditAnywhere, Category = FPS_StaticMesh)
     UStaticMeshComponent* SM_Knife;
+
+    // TPS Variables
+	// TPS Variables
+	// TPS Variables
+	// TPS Variables
+	// TPS Variables
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = TPS_SkeletalMesh)
+    USkeletalMeshComponent* SM_ThirdPerson;
 
 protected:
     //Movement Inputs

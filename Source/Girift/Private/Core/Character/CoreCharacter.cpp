@@ -13,6 +13,12 @@ ACoreCharacter::ACoreCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+    // FPS Constructor
+    // FPS Constructor
+    // FPS Constructor
+    // FPS Constructor
+    // FPS Constructor
+
 	// Parent Socket Names
     PSN_SpringArm_Main = TEXT("FPS_Camera_Position");
     PSN_Camera_SpringArm = TEXT("SpringEndpoint");
@@ -20,6 +26,7 @@ ACoreCharacter::ACoreCharacter()
 
 	SM_ArmsHolder = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ArmsHolder"));
     SM_ArmsHolder->SetupAttachment(GetMesh());
+    SM_ArmsHolder->SetRelativeLocation(FVector(30.0f,0.0f, 50.0f));
 
     SpringArm_Main = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm_Main"));
     SpringArm_Main->TargetArmLength = 0.0f;
@@ -30,6 +37,9 @@ ACoreCharacter::ACoreCharacter()
     SpringArm_Main->CameraRotationLagSpeed = 25.0f;
     SpringArm_Main->CameraLagMaxDistance = 1.5f;
     SpringArm_Main->SetupAttachment(SM_ArmsHolder, PSN_SpringArm_Main);
+
+    SM_ArmsHolder->bOnlyOwnerSee = true;
+
 
     /* SPRING ARM Attahment START*/
 
@@ -77,6 +87,20 @@ ACoreCharacter::ACoreCharacter()
 
     /* SPRING ARM Attahment END */
 
+    // TPS Constructor
+    // TPS Constructor
+    // TPS Constructor
+    // TPS Constructor
+    // TPS Constructor
+    // TPS Constructor
+
+    SM_ThirdPerson = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SM_ThirdPerson"));
+    SM_ThirdPerson->SetupAttachment(GetRootComponent());
+    SM_ThirdPerson->SetRelativeLocation(FVector(0.f,0.f,-88.0f));
+
+    SM_ThirdPerson->bOwnerNoSee = true;
+
+
 
     BaseTurnRate = 10.0f;
     BaseLookUpRate = 10.0f;
@@ -85,7 +109,6 @@ ACoreCharacter::ACoreCharacter()
     isRunning = false;
     isJumping = false;
 
-    isShooting  = false;
     isReloading = false;
     isAiming  = false;
     isInspectingWeapon  = false;
@@ -116,10 +139,6 @@ ACoreCharacter::ACoreCharacter()
     footstepDistanceMultiplier_SlowWalking = 10.0f;
     footstepDistanceMultiplier_Crounch = 10.0f;
 
-    bUseControllerRotationPitch = true;
-    bUseControllerRotationYaw = true;
-    bUseControllerRotationRoll = true;
-
     SetupManagerComponents();
 }
 
@@ -128,7 +147,20 @@ void ACoreCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-    SetupManagerComponents();
+	
+    if (!(IsLocallyControlled()))
+    {
+        bUseControllerRotationPitch = false;
+        bUseControllerRotationYaw = true;
+        bUseControllerRotationRoll = true;
+    }
+    else
+    {
+        bUseControllerRotationPitch = true;
+        bUseControllerRotationYaw = true;
+        bUseControllerRotationRoll = true;
+
+   }
 }
 
 // Called every frame
@@ -154,7 +186,10 @@ void ACoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     PlayerInputComponent->BindAction("Jump", IE_Pressed ,this, &ACoreCharacter::Jump_Pressed);
     PlayerInputComponent->BindAction("Jump", IE_Released ,this, &ACoreCharacter::Jump_Released);
 
-    Component_WeaponManager->SetupPlayerInputComponent(PlayerInputComponent);
+   if(Component_WeaponManager)
+   {
+       Component_WeaponManager->SetupPlayerInputComponent(PlayerInputComponent);
+   }
 }
 
 void ACoreCharacter::SetupManagerComponents(void) {

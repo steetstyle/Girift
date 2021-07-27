@@ -65,7 +65,9 @@ protected:
 
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
     int bulletsFiredSmoke;
-
+	
+    UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
+    bool bProjectileMode;
 
 protected:
     UPROPERTY(BlueprintReadWrite, Category = WeaponProperties)
