@@ -81,9 +81,31 @@ ACoreWeapon::ACoreWeapon()
     MaxRecoilIntensity = 20.0f;
     MinRecoilLocationX = 0.0f;
     MaxRecoilLocationX = 25.0f;
+	
     RecoilMultiplierAim = 0.75f;
     RecoilMultiplierNormal = 1.0f;
 
+    BulletSpreadResetRotation = 3.5f;
+    BulletSpreadInterpSpeed = 0.35f;
+    BulletSpreadInterpSpeedInRange = 0.05f;
+    BulletSpreadIntensity = 1.0f;
+	
+    MinBulletSpreadLocationX = -5.0f;
+    MaxBulletSpreadLocationX = 5.0f;
+    MinBulletSpreadLocationY = 5.0f;
+    MaxBulletSpreadLocationY = 50.0f;
+    MinBulletSpreadLocationZ = -15.0f;
+    MaxBulletSpreadLocationZ = 15.0f;
+
+    ArmRotationInterpSpeed = 0.01f;
+
+    MinPitchClamp = -65.0f;
+    MaxPitchClamp = 65.0f;
+    BulletSpreadResetDuration = 3.5f;
+    RecoilResetDuration = 5.0f;
+
+    BulletSpreadAimingMultiplier = 0.75f;
+    BulletSpreadNormalMultiplier = 1.0f;
 
 }
 
@@ -97,6 +119,10 @@ void ACoreWeapon::BeginPlay()
 void ACoreWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    ResetArmRotation();
+    ClampArmRotation();
+	BulletSpread();
 }
 
 void ACoreWeapon::InitializeWeaponForCharacter(ACoreCharacter* Character)
@@ -191,6 +217,7 @@ void ACoreWeapon::LeftClick_Pressed(void)
     {
         if (!(OwnerCharacter->IsWeaponCanFire() && !OwnerCharacter->IsWeaponShooting()) || IsOutOfAmmo())
         {
+
             if (IsAiming())
             {
                 if (AimShoutOutOfAmmoAnimationMontage)
@@ -221,6 +248,7 @@ void ACoreWeapon::LeftClick_Pressed(void)
             }
         }
 
+
     	if(!OwnerCharacter->IsWeaponCanFire())
     	{
             // Disable Shooting if any other actions are active
@@ -236,38 +264,39 @@ void ACoreWeapon::LeftClick(void)
 {
    if(OwnerCharacter)
    {
-   		
+       OwnerCharacter->Shoot_Begin(this);
+
        USoundBase* FireSound = GetFireSound();
    	
 	   if(isLeftClickPressed && !IsOutOfAmmo())
 	   {
 	   		
-                if (IsAiming())
+            if (IsAiming())
+            {
+                if (AimFireAnimationMontage)
                 {
-                    if (AimFireAnimationMontage)
+                    // Play Aim Animation and Aim Fire
+                    OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(AimFireAnimationMontage);
+                    if (FireSound)
                     {
-                        // Play Aim Animation and Aim Fire
-                        OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(AimFireAnimationMontage);
-                        if (FireSound)
-                        {
-                            // Play shoot sound  (Aim State)
-                            UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, GetActorLocation(), GetActorRotation());
-                        }
+                        // Play shoot sound  (Aim State)
+                        UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, GetActorLocation(), GetActorRotation());
                     }
                 }
-                else
+            }
+            else
+            {
+                if (NormalFireAnimationMontage)
                 {
-                    if (NormalFireAnimationMontage)
+                    // Play Normal Fire Animation and Normal Fire
+                    OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(NormalFireAnimationMontage);
+                    if (FireSound)
                     {
-	                    // Play Normal Fire Animation and Normal Fire
-	                    OwnerCharacter->GetArmsHolderSkeletalMesh()->GetAnimInstance()->Montage_Play(NormalFireAnimationMontage);
-                        if (FireSound)
-                        {
-                            // Play shoot sound (Normal State)
-                            UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, GetActorLocation(), GetActorRotation());
-                        }
+                        // Play shoot sound (Normal State)
+                        UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, GetActorLocation(), GetActorRotation());
                     }
                 }
+            }
 
 			RemoveAmmo();
 			SpawnBullet();
@@ -308,6 +337,7 @@ void ACoreWeapon::LeftClick_Released(void)
         {
 
         }
+        OwnerCharacter->Shoot_End();
     }
 
     GetWorld()->GetTimerManager().ClearTimer(ShootingTimerHandle);
@@ -435,10 +465,6 @@ void ACoreWeapon::SpawnBullet(void)
            }
 		}
 
-			
-		
-
-       
             UArrowComponent* BulletSpawnArrow = GetBulletSpawnComponent();
             if (BulletSpawnArrow)
             {
@@ -501,7 +527,6 @@ void ACoreWeapon::SpawnCasing(void)
 
 void ACoreWeapon::Recoil(void)
 {
-
 	if(OwnerCharacter)
 	{
 
@@ -513,17 +538,91 @@ void ACoreWeapon::Recoil(void)
 		
         if (IsAiming())
         {
-            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(clampedX, randomIntensity * RecoilMultiplierAim,1.0f,0.0f);
+            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(clampedX, randomIntensity * RecoilMultiplierAim,1.0f, 0.05f);
             FVector NewRelativeLocation = FVector(interpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
             OwnerCharacter->SpringArm_Main->SetRelativeLocation(NewRelativeLocation);
         }
         else
         {
             float newClampedIntesity = clampedX + randomIntensity;
-            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(newClampedIntesity, randomIntensity * RecoilMultiplierNormal, 1.0f, 0.0f);
+            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(newClampedIntesity, randomIntensity * RecoilMultiplierNormal, 1.0f, 0.05f);
             FVector NewRelativeLocation = FVector(interpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
             OwnerCharacter->SpringArm_Main->SetRelativeLocation(NewRelativeLocation);
         }
+	}
+}
+
+void ACoreWeapon::BulletSpread()
+{
+    UE_LOG(LogTemp, Warning, TEXT("BulletSpread Called"));
+
+	if(OwnerCharacter)
+	{
+        UE_LOG(LogTemp, Warning, TEXT("OwnerCharacter"));
+
+        if (OwnerCharacter->IsWeaponShooting() && !IsOutOfAmmo())
+        {
+            UE_LOG(LogTemp, Warning, TEXT("OwnerCharacter->IsWeaponShooting() && !IsOutOfAmmo()"));
+
+            USkeletalMeshComponent* CharacterArmsHolder = OwnerCharacter->GetArmsHolderSkeletalMesh();
+            if(CharacterArmsHolder)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("CharacterArmsHolder"));
+
+                const float ArmsHolderRotationPitch = CharacterArmsHolder->GetRelativeRotation().Pitch;
+                const float ArmsHolderInRange = UKismetMathLibrary::InRange_FloatFloat(ArmsHolderRotationPitch, -65, 65);
+            	
+                if (ArmsHolderInRange)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("ArmsHolderInRange"));
+
+                    if(IsAiming())
+                    {
+                        BulletSpreadIntensity = BulletSpreadAimingMultiplier;
+                    }
+                    else
+                    {
+                        BulletSpreadIntensity = BulletSpreadNormalMultiplier;
+                    }
+
+                    const float RandomBulletSpreadX = UKismetMathLibrary::RandomFloatInRange(MinBulletSpreadLocationX, MaxBulletSpreadLocationX);
+                    const float RandomBulletSpreadY = UKismetMathLibrary::RandomFloatInRange(MinBulletSpreadLocationY, MaxBulletSpreadLocationY);
+                    const float RandomBulletSpreadZ = UKismetMathLibrary::RandomFloatInRange(MinBulletSpreadLocationZ, MaxBulletSpreadLocationZ);
+
+                    const float InterpedBulletSpreadX = UKismetMathLibrary::FInterpTo(0.0f, RandomBulletSpreadX, 1.0f, BulletSpreadInterpSpeedInRange);
+                    const float InterpedBulletSpreadY = UKismetMathLibrary::FInterpTo(0.0f, RandomBulletSpreadY, 1.0f, BulletSpreadInterpSpeedInRange);
+                    const float InterpedBulletSpreadZ = UKismetMathLibrary::FInterpTo(0.0f, RandomBulletSpreadZ, 1.0f, BulletSpreadInterpSpeedInRange);
+
+                    const float MultipliedBulletSpreadX = InterpedBulletSpreadX * BulletSpreadIntensity;
+                    const float MultipliedBulletSpreadY = InterpedBulletSpreadY * BulletSpreadIntensity;
+                    const float MultipliedBulletSpreadZ = InterpedBulletSpreadZ * BulletSpreadIntensity;
+
+                    const FRotator BulletSpreadRotation = FRotator(
+                        MultipliedBulletSpreadY,
+                        MultipliedBulletSpreadZ,
+                        MultipliedBulletSpreadX
+                    );
+
+                    CharacterArmsHolder->AddRelativeRotation(BulletSpreadRotation);
+                }
+                else
+                {
+
+                    UE_LOG(LogTemp, Warning, TEXT("Not ArmsHolderInRange"));
+
+                    const FRotator ArmsHolderWorldRotation = CharacterArmsHolder->GetComponentRotation();
+
+                    const float NewRoll = UKismetMathLibrary::FInterpTo(ArmsHolderWorldRotation.Roll, 0.0f, BulletSpreadResetDuration, BulletSpreadInterpSpeed);
+                    const float NewPitch = UKismetMathLibrary::FInterpTo(ArmsHolderWorldRotation.Pitch, 0.0f, BulletSpreadResetDuration, BulletSpreadInterpSpeed);
+                    const float NewYaw = UKismetMathLibrary::FInterpTo(ArmsHolderWorldRotation.Yaw, 0.0f, BulletSpreadResetDuration, BulletSpreadInterpSpeed);
+
+                    const FRotator NewRotation = FRotator(NewPitch, NewYaw, NewRoll);
+
+                    CharacterArmsHolder->SetRelativeRotation(NewRotation);
+
+                }
+            }
+		}
 	}
 }
 
@@ -541,4 +640,61 @@ UArrowComponent* ACoreWeapon::GetMuzzleFlashPosition(void)
 UArrowComponent* ACoreWeapon::GetBulletSpawnComponent(void) 
 {
     return SpawnPoint_Casing;
+}
+
+void ACoreWeapon::ClampArmRotation(void)
+{
+    if (OwnerCharacter)
+    {
+        USkeletalMeshComponent* OwnerCharacterMesh = OwnerCharacter->GetMainSkeletalMesh();
+
+        if (OwnerCharacterMesh)
+        {
+            const FRotator OwnerCharacterMeshRotation = OwnerCharacterMesh->GetRelativeRotation();
+            const float NewPitch = UKismetMathLibrary::ClampAngle(OwnerCharacterMeshRotation.Pitch, MinPitchClamp, MaxPitchClamp);
+
+            const FRotator NewRotation = FRotator(NewPitch, 0.0f, 0.0f);
+
+            OwnerCharacterMesh->SetRelativeRotation(NewRotation);
+        }
+
+    }
+}
+
+void ACoreWeapon::ResetArmRotation(void)
+{
+    if(OwnerCharacter)
+    {
+        if(!(OwnerCharacter->IsWeaponShooting() && !IsOutOfAmmo()))
+        {
+            USkeletalMeshComponent* OwnerCharacterArmsHolder = OwnerCharacter->GetArmsHolderSkeletalMesh();
+
+        	if(OwnerCharacterArmsHolder)
+        	{
+                const FRotator OwnerCharacterArmsHolderRotation = OwnerCharacterArmsHolder->GetRelativeRotation();
+
+                const float NewRotationPitch = UKismetMathLibrary::FInterpTo(OwnerCharacterArmsHolderRotation.Pitch, 0.0f, BulletSpreadResetDuration, ArmRotationInterpSpeed);
+                const float NewRotationYaw = UKismetMathLibrary::FInterpTo(OwnerCharacterArmsHolderRotation.Yaw, 0.0f, BulletSpreadResetDuration, ArmRotationInterpSpeed);
+                const float NewRotationRoll = UKismetMathLibrary::FInterpTo(OwnerCharacterArmsHolderRotation.Roll, 0.0f, BulletSpreadResetDuration, ArmRotationInterpSpeed);
+
+                const FRotator newRotation = FRotator(NewRotationPitch, NewRotationYaw,NewRotationRoll);
+
+                OwnerCharacterArmsHolder->SetRelativeRotation(newRotation);
+        	}
+
+            // Reset Spring Arm Location(Used for recoil)
+
+            USpringArmComponent* OwnerCharacterSpringArm = OwnerCharacter->GetMainSpringArm();
+
+        	if(OwnerCharacterSpringArm)
+        	{
+                const FVector OwnerCharacterSpringArmLocation = OwnerCharacterSpringArm->GetRelativeLocation();
+
+                const float newLocationX = UKismetMathLibrary::FInterpTo(OwnerCharacterSpringArmLocation.X, 0.0f, RecoilResetDuration, ArmRotationInterpSpeed);
+                const FVector NewRelativeLocation = FVector(newLocationX,0.0f,0.0f);
+
+                OwnerCharacterSpringArm->SetRelativeLocation(NewRelativeLocation);
+        	}
+        }
+    }
 }

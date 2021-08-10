@@ -108,6 +108,59 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
         float RecoilMultiplierNormal;
 
+
+public:
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float BulletSpreadResetRotation;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float BulletSpreadInterpSpeed;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float BulletSpreadInterpSpeedInRange;
+    
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float BulletSpreadIntensity;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float BulletSpreadAimingMultiplier;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float BulletSpreadNormalMultiplier;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MinBulletSpreadLocationX;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MaxBulletSpreadLocationX;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MinBulletSpreadLocationY;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MaxBulletSpreadLocationY;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MinBulletSpreadLocationZ;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MaxBulletSpreadLocationZ;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float BulletSpreadResetDuration;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MinPitchClamp;
+
+    UPROPERTY(EditDefaultsOnly, Category = BulletSpreadProperties)
+        float MaxPitchClamp;
+
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float ArmRotationInterpSpeed;
+
+    UPROPERTY(EditDefaultsOnly, Category = RecoilProperties)
+        float RecoilResetDuration;
+
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponProperties)
     EWeaponFireModeStatus WeaponFireModeStatus;
@@ -268,5 +321,12 @@ protected:
     virtual void SpawnBullet(void);
     virtual void SpawnCasing(void);
     virtual void Recoil(void);
+    virtual void BulletSpread(void);
+	
+    // Clamp fps view rotation angle
+    virtual void ClampArmRotation(void);
+	
+	// Reset Arm Mesh Rotation (Used for bullet spread)
+    virtual void ResetArmRotation(void);
 
 };

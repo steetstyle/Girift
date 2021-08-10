@@ -147,7 +147,7 @@ void ACoreCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+
     if (!(IsLocallyControlled()))
     {
         bUseControllerRotationPitch = false;
@@ -359,6 +359,23 @@ void ACoreCharacter::BulletSpread(void){
     }
 }
 
+void ACoreCharacter::Shoot_Begin(ACoreWeapon* Weapon)
+{
+    if (Weapon)
+    {
+    	if(!Weapon->IsOutOfAmmo())
+    	{
+            isShooting = true;
+
+    	}
+    }
+}
+
+void ACoreCharacter::Shoot_End(void)
+{
+    isShooting = false;
+}
+
 
 
 void ACoreCharacter::OnToggleMouseCursor(void)
@@ -380,7 +397,15 @@ void ACoreCharacter::OnToggleMouseCursor(void)
     }
 }
 
-USkeletalMeshComponent* ACoreCharacter::GetArmsHolderSkeletalMesh() const{
+USpringArmComponent* ACoreCharacter::GetMainSpringArm() const {
+    return SpringArm_Main;
+}
+
+USkeletalMeshComponent* ACoreCharacter::GetMainSkeletalMesh() const {
+    return GetMesh();
+}
+
+USkeletalMeshComponent* ACoreCharacter::GetArmsHolderSkeletalMesh()  const {
     return SM_ArmsHolder;
 }
 

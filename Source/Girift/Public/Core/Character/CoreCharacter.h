@@ -230,6 +230,8 @@ protected:
     bool isReloadingAmmoLeft;
 
 public:
+    virtual USpringArmComponent* GetMainSpringArm() const;
+    virtual USkeletalMeshComponent* GetMainSkeletalMesh() const;
     virtual USkeletalMeshComponent* GetArmsHolderSkeletalMesh() const;
 public:
     //TODO: Weapon Particles need to be added for visual effects
@@ -257,6 +259,9 @@ public:
     virtual void Reload_End(void);
     virtual void SetAmmo(void);
     virtual void BulletSpread(void);
+
+    virtual void Shoot_Begin(ACoreWeapon* Weapon);
+    virtual void Shoot_End(void);
 public:
     virtual void SetIsAiming(bool status);
 
