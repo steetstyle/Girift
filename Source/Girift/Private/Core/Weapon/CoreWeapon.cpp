@@ -268,6 +268,12 @@ void ACoreWeapon::LeftClick(void)
 {
    if(OwnerCharacter)
    {
+       if (IsOutOfAmmo())
+       {
+           OwnerCharacter->Shoot_End();
+           return;
+       }
+   	
        OwnerCharacter->Shoot_Begin(this);
 
        USoundBase* FireSound = GetFireSound();
@@ -313,20 +319,22 @@ void ACoreWeapon::LeftClick(void)
 			}
             else if(WeaponFireModeStatus == EWeaponFireModeStatus::SemiAutomatic)
             {
-	            
+                SetTimerWithDelegate(ShootingTimerHandle, FTimerDelegate::CreateUObject(this, &ACoreWeapon::LeftClick_Released), FireRate, false);
             }
             else if (WeaponFireModeStatus == EWeaponFireModeStatus::Single)
             {
-
+                SetTimerWithDelegate(ShootingTimerHandle, FTimerDelegate::CreateUObject(this, &ACoreWeapon::LeftClick_Released), FireRate, false);
             }
             else if (WeaponFireModeStatus == EWeaponFireModeStatus::None)
             {
-
+                SetTimerWithDelegate(ShootingTimerHandle, FTimerDelegate::CreateUObject(this, &ACoreWeapon::LeftClick_Released), FireRate, false);
             }
 
             bHittedSomething = false;
 
 	   }
+
+      
    }
 }
 
@@ -558,7 +566,7 @@ void ACoreWeapon::Recoil(void)
 
 void ACoreWeapon::BulletSpread()
 {
-	if(OwnerCharacter)
+	if(OwnerCharacter && OwnerCharacter->IsValidLowLevel())
 	{
 
         if (OwnerCharacter->IsWeaponShooting() && !IsOutOfAmmo())
@@ -638,7 +646,7 @@ UArrowComponent* ACoreWeapon::GetBulletSpawnComponent(void)
 
 void ACoreWeapon::ClampArmRotation(void)
 {
-    if (OwnerCharacter)
+    if (OwnerCharacter && OwnerCharacter->IsValidLowLevel())
     {
         USkeletalMeshComponent* OwnerCharacterMesh = OwnerCharacter->GetMainSkeletalMesh();
 
@@ -657,7 +665,7 @@ void ACoreWeapon::ClampArmRotation(void)
 
 void ACoreWeapon::ResetArmRotation(void)
 {
-    if(OwnerCharacter)
+    if(OwnerCharacter && OwnerCharacter->IsValidLowLevel())
     {
         if(!(OwnerCharacter->IsWeaponShooting() && !IsOutOfAmmo()))
         {
