@@ -216,6 +216,11 @@ public:
     UPROPERTY(EditAnywhere, Category = ArrowComponent)
     UArrowComponent* SpawnPoint_Casing;
 
+    UPROPERTY(EditAnywhere, Category = SceneComponent)
+    USceneComponent* UC_ScopeComponents;
+	
+    UPROPERTY(EditAnywhere, Category = ParentSocket)
+    FName PSN_Scope;
 
 public:
     UPROPERTY(EditAnywhere, Category = WeaponSound)

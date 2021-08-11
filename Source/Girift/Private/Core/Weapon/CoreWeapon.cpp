@@ -16,6 +16,7 @@ ACoreWeapon::ACoreWeapon()
     PSN_Weapon = TEXT("Weapon_Position");
     PSN_Magazine = TEXT("Mag_Position");
     PSN_Slider = TEXT("Slider_Position");
+    PSN_Scope = TEXT("Weapon_Position");
 
     UC_Root = CreateDefaultSubobject<USceneComponent>(TEXT("UC_Root"));
     UC_Root->SetupAttachment(GetRootComponent());
@@ -57,6 +58,9 @@ ACoreWeapon::ACoreWeapon()
 
     SM_Slider = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Slider"));
     SM_Slider->SetupAttachment(UC_SliderComponents);
+
+    UC_ScopeComponents = CreateDefaultSubobject<USceneComponent>(TEXT("UC_ScopeComponents"));
+    UC_ScopeComponents->SetupAttachment(GetRootComponent(), PSN_Scope);
 
     bHittedSomething = false;
 
@@ -104,8 +108,8 @@ ACoreWeapon::ACoreWeapon()
     BulletSpreadResetDuration = 3.5f;
     RecoilResetDuration = 5.0f;
 
-    BulletSpreadAimingMultiplier = 0.75f;
-    BulletSpreadNormalMultiplier = 1.0f;
+    BulletSpreadAimingMultiplier = 0.08f;
+    BulletSpreadNormalMultiplier = 0.15f;
 
 }
 
@@ -554,27 +558,21 @@ void ACoreWeapon::Recoil(void)
 
 void ACoreWeapon::BulletSpread()
 {
-    UE_LOG(LogTemp, Warning, TEXT("BulletSpread Called"));
-
 	if(OwnerCharacter)
 	{
-        UE_LOG(LogTemp, Warning, TEXT("OwnerCharacter"));
 
         if (OwnerCharacter->IsWeaponShooting() && !IsOutOfAmmo())
         {
-            UE_LOG(LogTemp, Warning, TEXT("OwnerCharacter->IsWeaponShooting() && !IsOutOfAmmo()"));
 
             USkeletalMeshComponent* CharacterArmsHolder = OwnerCharacter->GetArmsHolderSkeletalMesh();
             if(CharacterArmsHolder)
             {
-                UE_LOG(LogTemp, Warning, TEXT("CharacterArmsHolder"));
 
                 const float ArmsHolderRotationPitch = CharacterArmsHolder->GetRelativeRotation().Pitch;
                 const float ArmsHolderInRange = UKismetMathLibrary::InRange_FloatFloat(ArmsHolderRotationPitch, -65, 65);
             	
                 if (ArmsHolderInRange)
                 {
-                    UE_LOG(LogTemp, Warning, TEXT("ArmsHolderInRange"));
 
                     if(IsAiming())
                     {
@@ -607,9 +605,6 @@ void ACoreWeapon::BulletSpread()
                 }
                 else
                 {
-
-                    UE_LOG(LogTemp, Warning, TEXT("Not ArmsHolderInRange"));
-
                     const FRotator ArmsHolderWorldRotation = CharacterArmsHolder->GetComponentRotation();
 
                     const float NewRoll = UKismetMathLibrary::FInterpTo(ArmsHolderWorldRotation.Roll, 0.0f, BulletSpreadResetDuration, BulletSpreadInterpSpeed);
@@ -619,7 +614,6 @@ void ACoreWeapon::BulletSpread()
                     const FRotator NewRotation = FRotator(NewPitch, NewYaw, NewRoll);
 
                     CharacterArmsHolder->SetRelativeRotation(NewRotation);
-
                 }
             }
 		}
@@ -677,9 +671,9 @@ void ACoreWeapon::ResetArmRotation(void)
                 const float NewRotationYaw = UKismetMathLibrary::FInterpTo(OwnerCharacterArmsHolderRotation.Yaw, 0.0f, BulletSpreadResetDuration, ArmRotationInterpSpeed);
                 const float NewRotationRoll = UKismetMathLibrary::FInterpTo(OwnerCharacterArmsHolderRotation.Roll, 0.0f, BulletSpreadResetDuration, ArmRotationInterpSpeed);
 
-                const FRotator newRotation = FRotator(NewRotationPitch, NewRotationYaw,NewRotationRoll);
+                const FRotator NewRotation = FRotator(NewRotationPitch, NewRotationYaw,NewRotationRoll);
 
-                OwnerCharacterArmsHolder->SetRelativeRotation(newRotation);
+                OwnerCharacterArmsHolder->SetRelativeRotation(NewRotation);
         	}
 
             // Reset Spring Arm Location(Used for recoil)
@@ -690,8 +684,8 @@ void ACoreWeapon::ResetArmRotation(void)
         	{
                 const FVector OwnerCharacterSpringArmLocation = OwnerCharacterSpringArm->GetRelativeLocation();
 
-                const float newLocationX = UKismetMathLibrary::FInterpTo(OwnerCharacterSpringArmLocation.X, 0.0f, RecoilResetDuration, ArmRotationInterpSpeed);
-                const FVector NewRelativeLocation = FVector(newLocationX,0.0f,0.0f);
+                const float NewLocationX = UKismetMathLibrary::FInterpTo(OwnerCharacterSpringArmLocation.X, 0.0f, RecoilResetDuration, ArmRotationInterpSpeed);
+                const FVector NewRelativeLocation = FVector(NewLocationX,0.0f,0.0f);
 
                 OwnerCharacterSpringArm->SetRelativeLocation(NewRelativeLocation);
         	}

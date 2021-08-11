@@ -101,7 +101,6 @@ ACoreCharacter::ACoreCharacter()
     SM_ThirdPerson->bOwnerNoSee = true;
 
 
-
     BaseTurnRate = 10.0f;
     BaseLookUpRate = 10.0f;
 
@@ -139,7 +138,7 @@ ACoreCharacter::ACoreCharacter()
     footstepDistanceMultiplier_SlowWalking = 10.0f;
     footstepDistanceMultiplier_Crounch = 10.0f;
 
-    SetupManagerComponents();
+    ACoreCharacter::SetupManagerComponents();
 }
 
 // Called when the game starts or when spawned
