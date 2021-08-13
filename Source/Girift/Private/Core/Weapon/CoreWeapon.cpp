@@ -17,19 +17,21 @@ ACoreWeapon::ACoreWeapon()
     PSN_Magazine = TEXT("Mag_Position");
     PSN_Slider = TEXT("Slider_Position");
     PSN_Scope = TEXT("Weapon_Position");
+    PSN_AimCenter = TEXT("AimMarker");
 
     UC_Root = CreateDefaultSubobject<USceneComponent>(TEXT("UC_Root"));
     UC_Root->SetupAttachment(GetRootComponent());
+    SetRootComponent(UC_Root);
 
     UC_WeaponComponents = CreateDefaultSubobject<USceneComponent>(TEXT("UC_WeaponComponents"));
-    UC_WeaponComponents->SetupAttachment(GetRootComponent(), PSN_Weapon);
+    UC_WeaponComponents->SetupAttachment(UC_Root, PSN_Weapon);
 
     SM_Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon"));
     SM_Weapon->SetupAttachment(UC_WeaponComponents);
 
     BC_WeaponCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("BC_WeaponCollider"));
 
-    FVector BoxExtent_BC_WeaponCollider = FVector(1.0f, 1.0f, 1.0f);
+    const FVector BoxExtent_BC_WeaponCollider = FVector(1.0f, 1.0f, 1.0f);
     BC_WeaponCollider->SetBoxExtent(BoxExtent_BC_WeaponCollider,true);
 
     BC_WeaponCollider->SetupAttachment(UC_WeaponComponents);
@@ -45,7 +47,7 @@ ACoreWeapon::ACoreWeapon()
     SpawnPoint_Casing->SetupAttachment(UC_WeaponComponents);
 
     UC_MagazineComponents = CreateDefaultSubobject<USceneComponent>(TEXT("UC_MagazineComponents"));
-    UC_MagazineComponents->SetupAttachment(GetRootComponent(), PSN_Magazine);
+    UC_MagazineComponents->SetupAttachment(UC_Root, PSN_Magazine);
 
     SM_Mag = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Mag"));
     SM_Mag->SetupAttachment(UC_MagazineComponents);
@@ -54,13 +56,20 @@ ACoreWeapon::ACoreWeapon()
     SM_Bullets->SetupAttachment(UC_MagazineComponents);
 
     UC_SliderComponents = CreateDefaultSubobject<USceneComponent>(TEXT("UC_SliderComponents"));
-    UC_SliderComponents->SetupAttachment(GetRootComponent(), PSN_Slider);
+    UC_SliderComponents->SetupAttachment(UC_Root, PSN_Slider);
 
     SM_Slider = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Slider"));
     SM_Slider->SetupAttachment(UC_SliderComponents);
 
     UC_ScopeComponents = CreateDefaultSubobject<USceneComponent>(TEXT("UC_ScopeComponents"));
-    UC_ScopeComponents->SetupAttachment(GetRootComponent(), PSN_Scope);
+    UC_ScopeComponents->SetupAttachment(UC_Root, PSN_Scope);
+
+    SM_Scope = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Scope"));
+    SM_Scope->SetupAttachment(UC_ScopeComponents);
+
+    CC_AimCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("CC_AimCamera"));
+    CC_AimCamera->bUsePawnControlRotation = false;
+    CC_AimCamera->SetupAttachment(UC_ScopeComponents);
 
     bHittedSomething = false;
 
@@ -111,12 +120,22 @@ ACoreWeapon::ACoreWeapon()
     BulletSpreadAimingMultiplier = 0.08f;
     BulletSpreadNormalMultiplier = 0.15f;
 
+    SmoothFOVInterpSpeed = 0.15f;
+
+    bAutoCenterAimCamera = true;
+
+    bAutoCenterAimCameraKeepX = false;
+    bAutoCenterAimCameraKeepY = false;
+    bAutoCenterAimCameraKeepZ = false;
+
+
 }
 
 // Called when the game starts or when spawned
 void ACoreWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 // Called every frame
@@ -124,9 +143,11 @@ void ACoreWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+    SmoothFOVIncrease();
     ResetArmRotation();
     ClampArmRotation();
 	BulletSpread();
+
 }
 
 void ACoreWeapon::InitializeWeaponForCharacter(ACoreCharacter* Character)
@@ -138,6 +159,7 @@ void ACoreWeapon::InitializeWeaponForCharacter(ACoreCharacter* Character)
         UC_WeaponComponents->AttachToComponent(OwnerCharacter->GetArmsHolderSkeletalMesh(), FAttachmentTransformRules::KeepRelativeTransform, PSN_Weapon);
         UC_MagazineComponents->AttachToComponent(OwnerCharacter->GetArmsHolderSkeletalMesh(), FAttachmentTransformRules::KeepRelativeTransform, PSN_Magazine);
         UC_SliderComponents->AttachToComponent(OwnerCharacter->GetArmsHolderSkeletalMesh(), FAttachmentTransformRules::KeepRelativeTransform, PSN_Slider);
+        UC_ScopeComponents->AttachToComponent(OwnerCharacter->GetArmsHolderSkeletalMesh(), FAttachmentTransformRules::KeepRelativeTransform, PSN_Scope);
         UE_LOG(LogTemp, Warning, TEXT("Weapon Attached to OwnerCharacter Skeletal Component"));
 
         if(WeaponAnimClass){
@@ -156,6 +178,7 @@ void ACoreWeapon::DeinitializeWeapon()
         UC_WeaponComponents->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         UC_MagazineComponents->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         UC_SliderComponents->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+        UC_ScopeComponents->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
         UE_LOG(LogTemp, Warning, TEXT("Weapon Detached from OwnerCharacter"));
     }
     else{
@@ -481,8 +504,8 @@ void ACoreWeapon::SpawnBullet(void)
             if (BulletSpawnArrow)
             {
 
-                FVector CharacterCameraLocationStart = OwnerCharacter->SpawnPoint_Bullet->GetComponentLocation();
-                FVector CharacterCameraLocationEnd = CharacterCameraLocationStart + OwnerCharacter->SpawnPoint_Bullet->GetForwardVector() * 20000;
+                const FVector CharacterCameraLocationStart = OwnerCharacter->SpawnPoint_Bullet->GetComponentLocation();
+                const FVector CharacterCameraLocationEnd = CharacterCameraLocationStart + OwnerCharacter->SpawnPoint_Bullet->GetForwardVector() * 20000;
 
 
                 FHitResult HitResult;
@@ -493,8 +516,8 @@ void ACoreWeapon::SpawnBullet(void)
                 // line trace if  hit something
                 if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), CharacterCameraLocationStart, CharacterCameraLocationEnd, ETraceTypeQuery::TraceTypeQuery1, false, ActorToIgnore, EDrawDebugTrace::ForOneFrame, HitResult, true))
                 {
-                    FVector Start = SpawnPoint_Casing->GetComponentLocation();
-                    FVector End = HitResult.ImpactPoint;
+                    const FVector Start = SpawnPoint_Casing->GetComponentLocation();
+                    const FVector End = HitResult.ImpactPoint;
                     ProjectileLookAtRotation = UKismetMathLibrary::FindLookAtRotation(Start, HitResult.ImpactPoint);
 
 
@@ -542,23 +565,24 @@ void ACoreWeapon::Recoil(void)
 	if(OwnerCharacter)
 	{
 
-        FVector SpringArmLocation = OwnerCharacter->SpringArm_Main->GetRelativeLocation();
+        const FVector SpringArmLocation = OwnerCharacter->SpringArm_Main->GetRelativeLocation();
 
-        float clampedX = UKismetMathLibrary::Clamp(SpringArmLocation.X, MinRecoilLocationX, MaxRecoilLocationX);
+        const float ClampedX = UKismetMathLibrary::Clamp(SpringArmLocation.X, MinRecoilLocationX, MaxRecoilLocationX);
 
-        float randomIntensity = UKismetMathLibrary::RandomFloatInRange(MinRecoilIntensity, MaxRecoilIntensity);
+        const float RandomIntensity = UKismetMathLibrary::RandomFloatInRange(MinRecoilIntensity, MaxRecoilIntensity);
 		
         if (IsAiming())
         {
-            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(clampedX, randomIntensity * RecoilMultiplierAim,1.0f, 0.05f);
-            FVector NewRelativeLocation = FVector(interpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
+            const float InterpolatedXLocation = UKismetMathLibrary::FInterpTo(ClampedX, RandomIntensity * RecoilMultiplierAim,1.0f, 0.05f);
+            const FVector NewRelativeLocation = FVector(InterpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
             OwnerCharacter->SpringArm_Main->SetRelativeLocation(NewRelativeLocation);
         }
         else
+
         {
-            float newClampedIntesity = clampedX + randomIntensity;
-            float interpolatedXLocation = UKismetMathLibrary::FInterpTo(newClampedIntesity, randomIntensity * RecoilMultiplierNormal, 1.0f, 0.05f);
-            FVector NewRelativeLocation = FVector(interpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
+            const float NewClampedIntesity = ClampedX + RandomIntensity;
+            const float InterpolatedXLocation = UKismetMathLibrary::FInterpTo(NewClampedIntesity, RandomIntensity * RecoilMultiplierNormal, 1.0f, 0.05f);
+            const FVector NewRelativeLocation = FVector(InterpolatedXLocation, SpringArmLocation.Y, SpringArmLocation.Z);
             OwnerCharacter->SpringArm_Main->SetRelativeLocation(NewRelativeLocation);
         }
 	}
@@ -699,4 +723,47 @@ void ACoreWeapon::ResetArmRotation(void)
         	}
         }
     }
+}
+
+void ACoreWeapon::SmoothFOVIncrease(void)
+{
+	if(OwnerCharacter && OwnerCharacter->IsValidLowLevel())
+	{
+        UCameraComponent* OwnerCharacterCameraComponent = OwnerCharacter->GetMainCamera();
+        const FVector OwnerCharacterCameraPosition = OwnerCharacterCameraComponent->GetRelativeLocation();
+		
+        if(IsAiming() && !OwnerCharacter->IsWeaponInspecting() && !OwnerCharacter->IsRunning() && !IsReloading() && !IsOutOfAmmo())
+		{
+
+            // if is aiming go aim camera position
+        	
+            const FVector AimCameraPosition = CC_AimCamera->GetRelativeLocation();
+
+            const float NewLocationX = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraPosition.X, AimCameraPosition.X, 1.0f, SmoothFOVInterpSpeed);
+            const float NewLocationY = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraPosition.Y, AimCameraPosition.Y, 1.0f, SmoothFOVInterpSpeed);
+            const float NewLocationZ = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraPosition.Z, AimCameraPosition.Z, 1.0f, SmoothFOVInterpSpeed);
+
+            const FVector NewLocation = FVector(NewLocationX, NewLocationY, NewLocationZ);
+            OwnerCharacterCameraComponent->SetRelativeLocation(NewLocation);
+         
+            const float NewFieldOfView = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraComponent->FieldOfView, CC_AimCamera->FieldOfView, 1.0f, SmoothFOVInterpSpeed);
+
+            OwnerCharacterCameraComponent->SetFieldOfView(NewFieldOfView);
+
+		}
+        else
+        {
+	        // if is not aiming turn back owner character position
+            const float NewLocationX = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraPosition.X,0.0f, 1.0f, SmoothFOVInterpSpeed);
+            const float NewLocationY = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraPosition.Y,0.0f, 1.0f, SmoothFOVInterpSpeed);
+            const float NewLocationZ = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraPosition.Z,0.0f, 1.0f, SmoothFOVInterpSpeed);
+
+            const FVector NewLocation = FVector(NewLocationX, NewLocationY, NewLocationZ);
+            OwnerCharacterCameraComponent->SetRelativeLocation(NewLocation);
+
+            const float NewFieldOfView = UKismetMathLibrary::FInterpTo(OwnerCharacterCameraComponent->FieldOfView, OwnerCharacter->DefaultFieldOfView, 1.0f, SmoothFOVInterpSpeed);
+
+            OwnerCharacterCameraComponent->SetFieldOfView(NewFieldOfView);
+        }
+	}
 }

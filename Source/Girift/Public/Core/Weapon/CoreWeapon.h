@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Sound/SoundBase.h"
@@ -222,6 +223,10 @@ public:
     UPROPERTY(EditAnywhere, Category = ParentSocket)
     FName PSN_Scope;
 
+    UPROPERTY(EditAnywhere, Category = StaticMesh)
+    UStaticMeshComponent* SM_Scope;
+
+
 public:
     UPROPERTY(EditAnywhere, Category = WeaponSound)
     USoundBase* AimShoutOutOfAmmoSound;
@@ -265,6 +270,32 @@ public:
 
     UPROPERTY(EditAnywhere, Category = WeaponAnimation)
     UAnimMontage* ReloadAmmoLeftAnimationMontage;
+
+public:
+    UPROPERTY(EditAnywhere, Category = Aim)
+    UCameraComponent* CC_AimCamera;
+
+    UPROPERTY(EditAnywhere, Category = Aim)
+    float AimFieldOfView;
+	
+    UPROPERTY(EditAnywhere, Category = Aim)
+    float SmoothFOVInterpSpeed;
+	
+    UPROPERTY(EditAnywhere, Category = Aim)
+	bool bAutoCenterAimCamera;
+
+    UPROPERTY(EditAnywhere, Category = Aim)
+    FName PSN_AimCenter;
+
+    UPROPERTY(EditAnywhere, Category = Aim)
+    bool bAutoCenterAimCameraKeepX;
+
+    UPROPERTY(EditAnywhere, Category = Aim)
+    bool bAutoCenterAimCameraKeepY;
+
+    UPROPERTY(EditAnywhere, Category = Aim)
+    bool bAutoCenterAimCameraKeepZ;
+	
 
 public:
     UPROPERTY(EditAnywhere, Category = WeaponSettings)
@@ -333,5 +364,8 @@ protected:
 	
 	// Reset Arm Mesh Rotation (Used for bullet spread)
     virtual void ResetArmRotation(void);
+
+    //Smooth FOV Increase For Aim
+    virtual void SmoothFOVIncrease(void);
 
 };

@@ -133,6 +133,10 @@ protected:
     void Sprint_Released();
     void Sprint_Pressed();
 
+ public:
+    UPROPERTY(BlueprintReadWrite, Category = Gameplay)
+    float DefaultFieldOfView;
+	
 protected:
     UPROPERTY(BlueprintReadWrite, Category = Gameplay)
     bool isAiming;
@@ -233,6 +237,7 @@ public:
     virtual USpringArmComponent* GetMainSpringArm() const;
     virtual USkeletalMeshComponent* GetMainSkeletalMesh() const;
     virtual USkeletalMeshComponent* GetArmsHolderSkeletalMesh() const;
+    virtual UCameraComponent* GetMainCamera() const;
 public:
     //TODO: Weapon Particles need to be added for visual effects
 
@@ -269,10 +274,12 @@ public:
     virtual void OnToggleMouseCursor(void);
 
  public:
+     virtual bool IsRunning(void);
      virtual bool IsWeaponCanFire(void);
      virtual bool IsWeaponShooting(void);
      virtual bool IsWeaponOutOfAmmo(void);
      virtual bool IsAiming(void);
      virtual bool IsReloading(void);
+     virtual bool IsWeaponInspecting(void);
 
 };

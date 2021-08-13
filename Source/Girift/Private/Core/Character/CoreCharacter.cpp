@@ -138,6 +138,8 @@ ACoreCharacter::ACoreCharacter()
     footstepDistanceMultiplier_SlowWalking = 10.0f;
     footstepDistanceMultiplier_Crounch = 10.0f;
 
+    DefaultFieldOfView = 95.f;
+
     ACoreCharacter::SetupManagerComponents();
 }
 
@@ -408,6 +410,11 @@ USkeletalMeshComponent* ACoreCharacter::GetArmsHolderSkeletalMesh()  const {
     return SM_ArmsHolder;
 }
 
+UCameraComponent* ACoreCharacter::GetMainCamera() const
+{
+    return Camera_SpringArm;
+}
+
 bool ACoreCharacter::IsWeaponCanFire()
 {
     if (isReloading || IsWeaponOutOfAmmo() || isHolstered || isThrowingGrenade || isRunning || isCloseToWall || isInspectingWeapon || isMeleeAttacking)
@@ -435,4 +442,14 @@ bool ACoreCharacter::IsAiming(void)
 bool ACoreCharacter::IsReloading(void)
 {
     return isReloading;
+}
+
+bool ACoreCharacter::IsWeaponInspecting(void)
+{
+    return isInspectingWeapon;
+}
+
+bool ACoreCharacter::IsRunning(void)
+{
+    return isRunning;
 }
